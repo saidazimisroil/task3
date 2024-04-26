@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const readline = require("readline");
+const AsciiTable = require("ascii-table");
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -80,15 +81,32 @@ function main() {
   });
 }
 
-// Display the help table
+// Function to display the help table
 function displayHelpTable(moves) {
-  let header = "v PC/User > | " + moves.join(" | ") + " |";
-  console.log(header);
-  console.log("-".repeat(header.length));
-  moves.forEach((move, i) => {
-    let row = moves.map((_, j) => determineWinner(move, moves[j], moves)).join(" | ");
-    console.log(`${move} | ${row}`);
+  // Create a new ASCII table with a custom heading
+  let table = new AsciiTable("Game Help Table");
+  table.setHeading("v PC/User >", ...moves);
+
+  // Fill the table with the results
+  moves.forEach((move) => {
+    let results = moves.map((targetMove) => determineWinner(move, targetMove, moves));
+    table.addRow(move, ...results);
   });
+
+  // Display the table
+  console.log(table.toString());
+}
+
+// Function to determine the winner - this needs to be correctly implemented to return 'Draw', 'Win', or 'Lose'
+function determineWinner(move, targetMove, moves) {
+  const index = moves.indexOf(move);
+  const targetIndex = moves.indexOf(targetMove);
+  const n = moves.length;
+  const diff = (targetIndex - index + n) % n;
+
+  if (move === targetMove) return "Draw";
+  else if (diff > 0 && diff <= n / 2) return "Win";
+  else return "Lose";
 }
 
 main();
